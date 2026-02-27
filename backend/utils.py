@@ -16,6 +16,9 @@ from dotenv import load_dotenv
 # Ensure the .env file is loaded as early as possible.
 load_dotenv(override=False)
 
+# Enable debug mode to see detailed error information
+litellm.set_verbose = True
+
 # --- Constants -------------------------------------------------------------------
 
 # Load system prompt from markdown file
@@ -24,6 +27,8 @@ SYSTEM_PROMPT: Final[str] = _PROMPT_PATH.read_text().strip()
 
 # Fetch configuration *after* we loaded the .env file.
 MODEL_NAME: Final[str] = os.environ.get("MODEL_NAME", "gpt-4o-mini")
+MODEL_TEMPERATURE: Final[float] = float(os.environ.get("MODEL_TEMPERATURE", "1"))
+MODEL_MAX_TOKENS: Final[int] = int(os.environ.get("MODEL_MAX_TOKENS", "2048"))
 
 
 # --- Agent wrapper ---------------------------------------------------------------
@@ -54,6 +59,8 @@ def get_agent_response(messages: List[Dict[str, str]]) -> List[Dict[str, str]]: 
     completion = litellm.completion(
         model=MODEL_NAME,
         messages=current_messages, # Pass the full history
+        temperature=MODEL_TEMPERATURE,
+        max_tokens=MODEL_MAX_TOKENS,
     )
 
     assistant_reply_content: str = (

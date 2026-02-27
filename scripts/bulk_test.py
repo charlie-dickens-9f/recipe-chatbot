@@ -83,16 +83,25 @@ def print_result(console: Console, index: int, total: int, query_id: str, query:
 
 
 def write_results(output_path: Path, results: list[tuple[str, str, str]]) -> None:
-    """Write results to JSON file."""
+    """Write results to JSON and CSV files."""
+    import csv
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     json_data = [
         {"id": result[0], "query": result[1], "response": result[2]}
         for result in results
     ]
-    
+
     with output_path.open("w", encoding="utf-8") as json_file:
         json.dump(json_data, json_file, indent=2, ensure_ascii=False)
+
+    csv_path = output_path.with_suffix(".csv")
+    with csv_path.open("w", newline="", encoding="utf-8") as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow(["id", "query", "response"])
+        for result in results:
+            writer.writerow(result)
 
 
 # -----------------------------------------------------------------------------
